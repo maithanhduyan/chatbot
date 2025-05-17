@@ -1,0 +1,48 @@
+version: "3.9"
+
+services:
+  chatbot-app:
+    build: .
+    container_name: chatbot_app
+    env_file:
+      - .env
+    restart: always
+    depends_on:
+      - redis
+      - postgres_main
+    environment:
+      REDIS_URL: ${REDIS_URL}
+      DATABASE_URL: ${DATABASE_URL}
+      VERIFY_TOKEN: ${VERIFY_TOKEN}
+      FACEBOOK_PAGE_ACCESS_TOKEN: ${FACEBOOK_PAGE_ACCESS_TOKEN}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      USE_MODEL: openai
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: node server.js
+
+  redis:
+    image: redis:7
+    container_name: redis_chatbot
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./redis/data:/data
+
+  postgres_main:
+    image: postgres:15
+    container_name: postgres_main
+    restart: always
+    environment:
+      POSTGRES_USER: chatbot
+      POSTGRES_PASSWORD: chatbotpass
+      POSTGRES_DB: chatbotdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./postgresql/data:/var/lib/postgresql/data
