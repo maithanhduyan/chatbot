@@ -2,7 +2,11 @@ version: "3.9"
 
 services:
   chatbot-app:
-    build: .
+    build: 
+      context: .
+      dockerfile: Dockerfile
+      # target: production # development
+    # image: chatbot-app:latest
     container_name: chatbot_app
     env_file:
       - .env
@@ -20,10 +24,12 @@ services:
       USE_MODEL: openai
     ports:
       - "3000:3000"
-    volumes:
-      - .:/app
-    working_dir: /app
-    command: node server.js
+    # volumes:
+    #   - .:/app:cached
+    #   - /app/node_modules
+    # working_dir: /app
+    # command: node server.js
+  
 
   redis:
     image: redis:7

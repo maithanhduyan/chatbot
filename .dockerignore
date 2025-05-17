@@ -1,0 +1,15 @@
+Dockerfile
+docker-compose.yml
+redis/
+postgresql/
+LICENSE
+README.md
+docs/
+node_modules
+.pnpm
+dist
+.env
+.git
+.tools/
+.gitignore
+.vscode/

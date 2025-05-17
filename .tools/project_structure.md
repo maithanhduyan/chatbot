@@ -41,17 +41,19 @@ services:
   chatbot-app:
     build: .
     container_name: chatbot_app
+    env_file:
+      - .env
     restart: always
     depends_on:
       - redis
       - postgres_main
     environment:
-      REDIS_URL: redis://redis:6379
-      DATABASE_URL: postgres://chatbot:chatbotpass@postgres_main:5432/chatbotdb
-      VERIFY_TOKEN: your_verify_token
-      PAGE_ACCESS_TOKEN: your_page_token
-      OPENAI_API_KEY: your_openai_key
-      GEMINI_API_KEY: your_gemini_key
+      REDIS_URL: ${REDIS_URL}
+      DATABASE_URL: ${DATABASE_URL}
+      VERIFY_TOKEN: ${VERIFY_TOKEN}
+      FACEBOOK_PAGE_ACCESS_TOKEN: ${FACEBOOK_PAGE_ACCESS_TOKEN}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
       USE_MODEL: openai
     ports:
       - "3000:3000"
