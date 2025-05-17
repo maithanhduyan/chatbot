@@ -29,3 +29,7 @@ worker.on("completed", (job) => console.log(`✅ Job ${job.id} done.`));
 worker.on("failed", (job, err) =>
   console.error(`❌ Job ${job.id} failed:`, err)
 );
+
+
+await saveMessage(sender.id, text);
+dashboard.trackUser(sender.id);  // ghi nhận user active

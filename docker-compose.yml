@@ -13,7 +13,7 @@ services:
     restart: always
     depends_on:
       - redis
-      - postgres_main
+      - postgres
     environment:
       REDIS_URL: ${REDIS_URL}
       DATABASE_URL: ${DATABASE_URL}
