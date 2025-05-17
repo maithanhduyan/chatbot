@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Chatbot Dashboard</title>
+  <script src="https://cdn.socket.io/4.4.1/socket.io.min.js"></script>
+</head>
+<body>
+  <h1>🤖 Chatbot Realtime Monitor</h1>
+  <p>🟡 Active Jobs: <span id="activeJobs">0</span></p>
+  <p>✅ Completed Jobs: <span id="completedJobs">0</span></p>
+  <p>❌ Failed Jobs: <span id="failedJobs">0</span></p>
+  <p>👥 Active Users: <span id="activeUsers">0</span></p>
+
+  <script>
+    const socket = io();
+    socket.on('stats', stats => {
+      document.getElementById('activeJobs').innerText = stats.activeJobs;
+      document.getElementById('completedJobs').innerText = stats.completedJobs;
+      document.getElementById('failedJobs').innerText = stats.failedJobs;
+      document.getElementById('activeUsers').innerText = stats.activeUsers;
+    });
+  </script>
+</body>
+</html>
