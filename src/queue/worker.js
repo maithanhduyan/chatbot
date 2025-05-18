@@ -1,35 +1,46 @@
-import "dotenv/config";
-import { Worker } from "bullmq";
-import { redis } from "../config/redis.js";
-import { sendTextMessage } from "../services/facebookApi.js";
-import {
-  generateAIReply,
-  generateAIReplyWithContext,
-} from "../services/aiService.js";
-import { saveMessage } from "../services/dbService.js";
+import 'dotenv/config';
+import { Worker } from 'bullmq';
+import { redis } from '../config/redis.js';
+import { sendTextMessage } from '../services/facebookApi.js';
+import { generateAIReplyWithContext } from '../services/aiService/index.js';
+import { saveMessage } from '../services/dbService.js';
+import { dashboard } from '../../server.js'; // Đảm bảo export từ server.js
 
 const worker = new Worker(
-  "messages",
+  'messages',
   async (job) => {
-    const { sender, message } = job.data;
-    const text = message.text;
+    try {
+      const { sender, message } = job.data;
+      const text = message.text;
 
-    await saveMessage(sender.id, text);
-    const reply = await generateAIReply(text);
+      // Lưu message gốc từ user
+      await saveMessage(sender.id, text);
 
-    // const reply = await generateAIReplyWithContext(sender.id, text);
+      // Ghi nhận user hoạt động
+      dashboard.trackUser(sender.id);
 
-    await saveMessage(sender.id, text, reply);
-    await sendTextMessage(sender.id, reply);
+      // Gọi AI trả lời có context
+      const reply = await generateAIReplyWithContext(sender.id, text, redis);
+
+      // Lưu phản hồi vào DB
+      await saveMessage(sender.id, text, reply);
+
+      // Gửi trả lời lại qua Facebook Messenger
+      await sendTextMessage(sender.id, reply);
+    } catch (err) {
+      console.error('❌ Job processing error:', err);
+      throw err;
+    }
   },
-  { connection: redis }
+  {
+    connection: redis,
+  }
 );
 
-worker.on("completed", (job) => console.log(`✅ Job ${job.id} done.`));
-worker.on("failed", (job, err) =>
-  console.error(`❌ Job ${job.id} failed:`, err)
-);
-
-
-await saveMessage(sender.id, text);
-dashboard.trackUser(sender.id);  // ghi nhận user active
+// Event log
+worker.on('completed', (job) => {
+  console.log(`✅ Job ${job.id} done.`);
+});
+worker.on('failed', (job, err) => {
+  console.error(`❌ Job ${job.id} failed:`, err);
+});
